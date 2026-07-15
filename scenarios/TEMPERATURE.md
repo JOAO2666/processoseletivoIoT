@@ -1,6 +1,8 @@
 # Descritivo de Projeto: Sistema de Monitoramento de Temperatura e Abertura de Porta (Smart Cooler / Estufa)
 
-Este documento apresenta a especificação técnica e o escopo de desenvolvimento para o projeto de um **Sistema de Monitoramento de Temperatura e Abertura de Porta**. O objetivo é criar uma solução embarcada para controle de qualidade e auditoria em ambientes refrigerados, estufas ou painéis elétricos, monitorando o tempo de exposição térmica e a integridade do isolamento físico para prevenir a degradação de insumos ou sobreaquecimento de componentes.
+Este documento apresenta a especificação técnica e o escopo de desenvolvimento para o projeto de um **Sistema de Monitoramento de Temperatura e Abertura de Porta**.
+
+O objetivo é criar uma solução embarcada para controle de qualidade e auditoria em ambientes refrigerados, estufas ou painéis elétricos, monitorando o tempo de exposição térmica e a integridade do isolamento físico para prevenir a degradação de insumos ou sobreaquecimento de componentes.
 
 ---
 
@@ -14,9 +16,24 @@ O sistema utiliza um botão físico para detectar o estado de abertura de uma po
 
 Para o desenvolvimento e simulação no ambiente Wokwi, os seguintes componentes e identificadores devem ser mapeados no arquivo `diagram.json`:
 
-- **Microcontrolador:** ESP32.
-- **Sensor de Temperatura (MPU6050 IMU):** Mapeado obrigatoriamente com o ID `imu1`.
+- **Microcontrolador:** ESP32 DevKit C v4 (ESP32 comum).
+
+<div align="center">
+<img width="151" height="269" alt="{530B2ACC-0EF3-438A-A21D-6F977BFB2616}" src="https://github.com/user-attachments/assets/757f01c2-ed9e-4969-b2d1-e63671587d8d" />
+</div>
+
+- **Sensor de Temperatura (MPU6050 IMU):** Mapeado com o ID `imu1`.
+
+<div align="center">
+<img width="212" height="170" alt="{D3B91040-97C4-4232-BBB0-3D8FC8D5EF92}" src="https://github.com/user-attachments/assets/4f76422b-fe18-49f8-9e42-b5910daf8e7e" />
+</div>
+
 - **Fim de Curso / Sensor de Porta (Botão):** Mapeado obrigatoriamente com o ID `btn1`, simulando o estado da porta (Pressionado/Fechado = `1`, Solto/Aberto = `0`).
+
+<div align="center">
+<img width="204" height="143" alt="{06442CCC-FADA-43A3-9C57-6E77FC98C916}" src="https://github.com/user-attachments/assets/22fbbacd-5994-41d1-b0a0-ef120afd6f1a" />
+</div>
+
 - **Interface de Comunicação:** Saída Serial (UART) para transmissão de logs de status, alarmes e telemetria para a esteira de integração contínua (CI).
 
 ---
@@ -33,7 +50,7 @@ Ao ser energizado, o microcontrolador deve inicializar os periféricos, configur
 
 ### B. Lógica de Tempo de Porta Aberta (Limite X)
 
-- **Detecção de Abertura:** Quando o pino do botão `btn1` for solto (leitura igual a `0`), o sistema deve registrar o carimbo de tempo imediatamente através da função `tempoAbertura = millis()`.
+- **Detecção de Abertura:** Quando o pino do botão `btn1` for solto (leitura igual a `0`), o sistema deve registrar o carimbo de tempo imediatamente.
 - **Estouro do Cronômetro:** Caso a porta permaneça aberta continuamente por um tempo igual ou superior ao limite parametrizado constante (ex: `LIMITE_TEMPO_X` configurado em 5000ms), um evento de falha por exposição prolongada deve ser emitido.
 - **Mensagem Serial Esperada:** `"ALERTA: Porta aberta por muito tempo!"`
 
@@ -56,10 +73,9 @@ Ao ser energizado, o microcontrolador deve inicializar os periféricos, configur
 
 Para garantir que o código desenvolvido atenda aos requisitos, o firmware passará por uma esteira de testes estritos caractere por caractere (`wait-serial`).
 
-### ⚠️ Requisitos Críticos de Implementação
+### Requisitos Críticos de Implementação
 
-1. **Casamento Exato de Strings:** O validador do CI falhará por _timeout_ se houver qualquer divergência em acentuações, pontuações ou diferença entre letras maiúsculas e minúsculas nas mensagens de log.
-2. **Arquitetura Totalmente Não-Bloqueante:** É expressamente proibido o uso de `delay()` para gerenciar o tempo de contagem da porta. Como o microcontrolador precisa analisar leituras do MPU6050 ao mesmo tempo em que checa o estado do botão, rotinas travadas quebrarão a sincronia do CI e reprovarão o código. Utilize exclusivamente estruturas baseadas em `millis()`.
+Para garantir que o código desenvolvido esteja correto, o firmware deve responder estritamente aos estímulos configurados nos cenários do Wokwi CI. O código não deve conter funções bloqueantes longas em seu loop principal para que as validações de tempo funcionem perfeitamente. Mensagens com letras maiúsculas e minúsculas diferentes do específicado serão consideradas erradas.
 
 ### Parâmetros de Validação no CI
 
