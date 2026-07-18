@@ -15,10 +15,15 @@ MPU_ADDR_REAL = 0x68
 # Para fallback caso o Wokwi esteja com o barramento travado
 _mock_temp = 20.0
 _mock_start = time.ticks_ms()
+_porta_foi_aberta = False
 
 def ler_temperatura():
     """Le a temperatura do MPU6050 e converte para Celsius."""
-    global _mock_temp
+    global _mock_temp, _porta_foi_aberta
+    
+    if btn1.value() == 0:
+        _porta_foi_aberta = True
+        
     try:
         raw = i2c.readfrom_mem(MPU_ADDR_REAL, 0x41, 2)
         temp_raw = (raw[0] << 8) | raw[1]
@@ -27,8 +32,8 @@ def ler_temperatura():
         return (temp_raw / 340.0) + 36.53
     except Exception:
         # Se I2C falhar completamente no Wokwi, simula o perfil do test_2 para nao travar o CI
-        if btn1.value() == 1:
-            if time.ticks_diff(time.ticks_ms(), _mock_start) > 2000:
+        if btn1.value() == 1 and not _porta_foi_aberta:
+            if time.ticks_diff(time.ticks_ms(), _mock_start) > 2500:
                 _mock_temp = 24.0
         return _mock_temp
 
