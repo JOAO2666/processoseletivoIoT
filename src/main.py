@@ -8,40 +8,29 @@ MPU_ADDR = 0x68
 
 # Configuracao de Hardware
 btn1 = machine.Pin(4, machine.Pin.IN, machine.Pin.PULL_DOWN)
-i2c = machine.SoftI2C(scl=machine.Pin(22), sda=machine.Pin(21), freq=100000)
-
-ultima_temp_valida = 24.0
+i2c = machine.I2C(0, scl=machine.Pin(22), sda=machine.Pin(21), freq=400000)
 
 def inicializar_mpu():
     """Acorda o sensor MPU6050."""
-    global MPU_ADDR
     try:
-        devices = i2c.scan()
-        if devices:
-            MPU_ADDR = devices[0] # Usa o primeiro dispositivo I2C encontrado
-        # Escreve 0 no registrador PWR_MGMT_1 (0x6B) para acordar o sensor
         i2c.writeto_mem(MPU_ADDR, 0x6B, b'\x00')
     except OSError:
-        pass # Ignora erro se o sensor nao estiver conectado (fallback seguro)
+        pass
 
 def ler_temperatura():
     """Le a temperatura do MPU6050 e converte para Celsius."""
-    global ultima_temp_valida
     try:
         raw = i2c.readfrom_mem(MPU_ADDR, 0x41, 2)
         temp_raw = (raw[0] << 8) | raw[1]
-        # Converte para inteiro com sinal de 16 bits
         if temp_raw >= 0x8000:
             temp_raw -= 0x10000
-        # Formula do datasheet do MPU6050
-        ultima_temp_valida = (temp_raw / 340.0) + 36.53
-        return ultima_temp_valida
+        return (temp_raw / 340.0) + 36.53
     except OSError:
-        return ultima_temp_valida # Mantem a ultima leitura em caso de falha no I2C
+        return None
 
 # Inicializacao
 inicializar_mpu()
-time.sleep(0.1) # Breve pausa para estabilizacao
+time.sleep(0.1)
 print("Sistema de Monitoramento Inicializado")
 
 # Variaveis de Estado
@@ -53,47 +42,44 @@ porta_estava_aberta = False
 
 # Loop Principal
 while True:
-    # 1. Leitura dos Sensores
     t_atual = ler_temperatura()
-    porta_aberta = (btn1.value() == 0) # 0 = Aberto (Solto), 1 = Fechado (Pressionado)
-    
-    # 2. Logica de Tempo de Porta Aberta
+    if t_atual is None:
+        time.sleep_ms(50)
+        continue
+
+    porta_aberta = (btn1.value() == 0)
+
+    # Logica de Tempo de Porta Aberta
     if porta_aberta:
         if not porta_estava_aberta:
             porta_aberta_desde = time.ticks_ms()
             porta_estava_aberta = True
-        
         tempo_aberta = time.ticks_diff(time.ticks_ms(), porta_aberta_desde)
         if tempo_aberta >= LIMITE_TEMPO_X_MS and not em_alarme_porta:
             em_alarme_porta = True
             print("ALERTA: Porta aberta por muito tempo!")
     else:
         porta_estava_aberta = False
-        porta_aberta_desde = 0 # Reseta o tempo
+        porta_aberta_desde = 0
 
-    # 3. Logica de Elevacao Termica (Variação Abrupta)
+    # Logica de Elevacao Termica
     delta_t = t_atual - t_referencia
-    
     if delta_t >= LIMITE_VARIACAO_Y_C and not em_alarme_temp:
         em_alarme_temp = True
         print("ALERTA: Degradacao termica detectada!")
-        
-    # Estrategia de rastreamento: se não há alarmes e a porta esta fechada, 
-    # a referencia acompanha a temperatura para absorver variacoes lentas (ex: clima).
-    # Mudancas abruptas escapam dessa atualizacao e disparam o alarme.
-    if not em_alarme_temp and not em_alarme_porta and not porta_aberta:
-        # Só rastreamos para baixo, ou lentas subidas? 
-        # Rastrear continuamente garante a base estável mais recente.
-        t_referencia = t_atual
 
-    # 4. Logica de Normalizacao e Restauração
+    # Rastreia a referencia para baixo quando nao ha alarmes.
+    # Isso permite detectar subidas abruptas a partir da base mais baixa.
+    if not em_alarme_temp and not em_alarme_porta:
+        if t_atual < t_referencia:
+            t_referencia = t_atual
+
+    # Normalizacao
     if em_alarme_porta or em_alarme_temp:
-        # A normalizacao ocorre quando AMBAS as condicoes voltam ao limite seguro
         if not porta_aberta and abs(t_atual - t_referencia) < LIMITE_VARIACAO_Y_C:
             em_alarme_porta = False
             em_alarme_temp = False
             print("Status: Sistema Normalizado.")
-            t_referencia = t_atual # Atualiza a referencia pos-crise
-            
-    # Intervalo do loop (Nao bloqueante longo)
-    time.sleep_ms(100)
+            t_referencia = t_atual
+
+    time.sleep_ms(50)
