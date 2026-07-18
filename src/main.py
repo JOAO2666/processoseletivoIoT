@@ -23,7 +23,15 @@ def ler_temperatura():
         # Se houver falha de barramento no simulador, retorna None para a lógica não atuar com dados corrompidos
         return None
 
+def acordar_mpu():
+    """Acorda o sensor MPU6050 retirando do modo sleep (0x6B = 0)."""
+    try:
+        i2c.writeto_mem(MPU_ADDR, 0x6B, b'\x00')
+    except Exception as e:
+        print("Aviso: Falha ao acordar MPU:", e)
+
 # Inicializacao
+acordar_mpu()
 time.sleep(0.1)
 print("Sistema de Monitoramento Inicializado")
 
