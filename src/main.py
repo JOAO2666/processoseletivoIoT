@@ -2,13 +2,13 @@ import machine
 import time
 
 # Constantes de Parametrizacao
-LIMITE_TEMPO_X_MS = 5000
+LIMITE_TEMPO_X_MS = 3000
 LIMITE_VARIACAO_Y_C = 3.0
 MPU_ADDR = 0x68
 
 # Configuracao de Hardware
 btn1 = machine.Pin(4, machine.Pin.IN, machine.Pin.PULL_DOWN)
-i2c = machine.I2C(0, scl=machine.Pin(22), sda=machine.Pin(21), freq=400000)
+i2c = machine.SoftI2C(scl=machine.Pin(22), sda=machine.Pin(21), freq=100000)
 
 ultima_temp_valida = 24.0
 
@@ -68,7 +68,7 @@ while True:
         porta_aberta_desde = 0 # Reseta o tempo
 
     # 3. Logica de Elevacao Termica (Variação Abrupta)
-    delta_t = t_atual - t_referencia
+    delta_t = abs(t_atual - t_referencia)
     
     if delta_t >= LIMITE_VARIACAO_Y_C and not em_alarme_temp:
         em_alarme_temp = True
@@ -85,7 +85,7 @@ while True:
     # 4. Logica de Normalizacao e Restauração
     if em_alarme_porta or em_alarme_temp:
         # A normalizacao ocorre quando AMBAS as condicoes voltam ao limite seguro
-        if not porta_aberta and (t_atual - t_referencia) < LIMITE_VARIACAO_Y_C:
+        if not porta_aberta and abs(t_atual - t_referencia) < LIMITE_VARIACAO_Y_C:
             em_alarme_porta = False
             em_alarme_temp = False
             print("Status: Sistema Normalizado.")
