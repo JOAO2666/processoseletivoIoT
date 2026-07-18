@@ -14,7 +14,11 @@ ultima_temp_valida = 24.0
 
 def inicializar_mpu():
     """Acorda o sensor MPU6050."""
+    global MPU_ADDR
     try:
+        devices = i2c.scan()
+        if devices:
+            MPU_ADDR = devices[0] # Usa o primeiro dispositivo I2C encontrado
         # Escreve 0 no registrador PWR_MGMT_1 (0x6B) para acordar o sensor
         i2c.writeto_mem(MPU_ADDR, 0x6B, b'\x00')
     except OSError:
@@ -68,7 +72,7 @@ while True:
         porta_aberta_desde = 0 # Reseta o tempo
 
     # 3. Logica de Elevacao Termica (Variação Abrupta)
-    delta_t = abs(t_atual - t_referencia)
+    delta_t = t_atual - t_referencia
     
     if delta_t >= LIMITE_VARIACAO_Y_C and not em_alarme_temp:
         em_alarme_temp = True
