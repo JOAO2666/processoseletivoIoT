@@ -51,3 +51,4 @@ A simulação Wokwi responde prontamente ao painel com perfeita sincronia em tes
 
 ## Comentários Adicionais (Opcional)
 Durante o desenvolvimento percebeu-se a importância da abordagem não-bloqueante no ecossistema Python embarcado. Diferente de scripts tradicionais, manter o controle sobre o "clock" interno da placa com `time.ticks_ms` é essencial para conciliar checagens paralelas de sensores diferentes em um único core sem perdas de amostragem. O resultado é um código limpo, testável em CI e resiliente, alcançando os critérios máximos do desafio.
+
