@@ -13,6 +13,7 @@ i2c = machine.SoftI2C(scl=machine.Pin(22, machine.Pin.PULL_UP), sda=machine.Pin(
 
 def descobrir_mpu_addr():
     devices = i2c.scan()
+    print("I2C Devices Found:", [hex(d) for d in devices])
     for d in devices:
         if d in (0x68, 0x69):
             return d
