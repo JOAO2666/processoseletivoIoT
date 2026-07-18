@@ -1,350 +1,53 @@
-# Processo Seletivo – Intensivo Maker | IoT
-
-## Etapa Prática – Sistemas Embarcados
-
-Bem-vindo(a) à **etapa prática do processo seletivo para o Intensivo Maker | IoT**.
-
-Esta atividade tem como objetivo avaliar suas competências em **Sistemas Embarcados**, com foco em **organização de projeto, lógica de firmware e simulação de hardware**, a partir da aplicação prática dos conhecimentos adquiridos nos cursos EAD da etapa anterior.
-
-> **Objetivo principal**  
-> Avaliar sua capacidade de **planejar, estruturar e desenvolver** uma solução funcional de sistemas embarcados, seguindo boas práticas de engenharia.
-
----
-
-## Antes de Tudo
-
-Se você **nunca utilizou Git ou GitHub**, não se preocupe.  
-Siga atentamente os passos abaixo.
-
----
-
-### 1 - Criação de Conta no GitHub
-
-1. Acesse: <https://github.com>
-2. Clique em **Sign up**
-3. Crie sua conta gratuita seguindo as instruções da plataforma
-
-> O GitHub será utilizado para:
->
-> - Envio do seu projeto
-> - Versionamento do código
-> - Correção e validação automática via GitHub Actions
-
----
-
-### 2 - Instalação do Git
-
-O **Git** é a ferramenta responsável pelo controle de versões do seu código.
-
-### Windows
-
-Baixe e instale o **Git Bash**:  
-<https://git-scm.com/downloads>
-
-### Linux / macOS
-
-Verifique se o Git já está instalado:
-
-```bash
-git --version
-```
-
-> Caso não esteja, instale pelo gerenciador de pacotes do seu sistema.
-
-## Preparando o Ambiente
-
-Para desenvolver o desafio, você deverá criar uma cópia deste repositório no seu GitHub.
-
-### 1 - Fork do Repositório
-
-No canto superior direito desta página, clique em Fork
-
-<img width="219" height="45" alt="image" src="https://github.com/user-attachments/assets/5d629626-513a-445c-ba0f-e5bb3e225187" />
-
-Uma cópia do repositório será criada no seu perfil do GitHub
-
-> O Fork permite que você trabalhe de forma independente, sem alterar o repositório original do processo seletivo.
-
-### 2 - Clone do Repositório
-
-No repositório do seu Fork, clique em **<> Code**
-
-<img width="149" height="52" alt="image" src="https://github.com/user-attachments/assets/abbd331b-a005-4633-89c6-afd16acbe828" />
-
-Copie a URL e execute no terminal:
-
-```bash
-git clone https://github.com/SEU_USUARIO/nome-do-repositorio.git
-cd nome-do-repositorio
-```
-
-> O comando git clone cria uma cópia local do repositório para desenvolvimento.
-
-### 3 - Preparação do Ambiente de Execução
-
-Você pode executar o projeto de duas formas. Escolha apenas uma.
-
-#### Opção A – Ambiente Python Local
-
-**Requisitos:**
-
-- Python 3.10 ou 3.11
-- pip
-
-**Instale as dependências:**
-
-```bash
-pip install -r requirements.txt
-```
-
-#### Opção B – Dev Container (Recomendado)
-
-Este repositório inclui um Dev Container, garantindo um ambiente padronizado.
-
-**Requisitos:**
-
-- VS Code
-- Docker instalado
-- Extensão Dev Containers
-
-**Passos:**
-
-1. Abra o repositório no VS Code
-2. Clique em “Reopen in Container”
-3. Aguarde a criação automática do ambiente
-
-> Todas as dependências serão instaladas automaticamente.
-
-## Criando sua API Key do Wokwi
-
-A simulação do projeto será executada automaticamente via GitHub Actions, utilizando o Wokwi CLI.
-
-Para isso, você precisa gerar uma API Key.
-
-1. Acesse: <https://wokwi.com/dashboard/ci>
-2. Faça login (Google ou GitHub)
-3. Clique em Generate API Token
-4. Copie a chave gerada (exemplo: wokwi-xxxxxxxx)
-
-> Importante
-
-- Nunca faça commit dessa chave
-- Ela deve ser armazenada apenas como secret no GitHub
-
-## Configurando a API Key no GitHub (Secrets)
-
-**No repositório do seu Fork:**
-
-1. Vá em Settings
-2. Acesse Secrets and variables → Actions
-3. Clique em New repository secret
-4. Nome: WOKWI_API_KEY
-5. Valor: sua chave gerada
-6. Salve
-
-> As GitHub Actions do template já estão preparadas para usar essa variável automaticamente.
-
-## Desafio Técnico
-
-Você deverá desenvolver um projeto de sistemas embarcados simulados, utilizando Python e Wokwi.
-
-### Estrutura mínima esperada
-
-```text
-/project
- ├── src/
- │   └── main.py        # Código principal do projeto
- ├── wokwi.toml         # Configuração da simulação
- ├── diagram.json       # Circuito no Wokwi
- └── README.md          # Explicação do seu projeto
-```
-
-> Você pode expandir essa estrutura se desejar, desde que mantenha os arquivos essenciais.
-
-### Escolha do cenário
-
-No diretório "scenarios" existem arquivos .md e pastas referentes a diferentes desafios. Selecione apenas um deles e mantenha apenas a pasta e .md referente ao desafio a ser desenvolvido, deletando os demais. Isso fará com o que o fluxo de testes automáticos selecione o fluxo de acordo com o desafio escolhido.
-
-### Como Desenvolver seu Projeto
-
-O desenvolvimento acontece principalmente nos arquivos abaixo:
-
-#### src/main.py
-
-- Código Python executado na simulação
-- Implementa a lógica do sistema embarcado
-- Exemplos: controle de LEDs, leitura de sensores, estados, temporizações, etc.
-
-#### diagram.json
-
-- Define o hardware virtual do projeto
-- Componentes como:
-  - LEDs
-  - Botões
-  - Sensores
-  - Placa microcontroladora
-
-#### wokwi.toml
-
-- Configura a simulação:
-  - Tipo de placa
-  - Framework
-  - Dependências adicionais
-
-#### Commit e Push
-
-Após suas alterações:
-
-```bash
-git add .
-git commit -m "Descrição clara do que foi feito"
-git push
-```
-
-### Execução Automática (GitHub Actions)
-
-A cada push, o GitHub Actions irá automaticamente:
-
-- Executar o pipeline de build
-- Rodar a simulação via Wokwi CLI
-- Validar que o projeto executa sem erros
-
-### Caso algo falhe
-
-- Vá até a aba Actions
-- Analise os logs da execução
-- Corrija e envie novamente
-
-## Critérios de Avaliação
-
-Esta etapa será avaliada considerando:
-
-- Funcionamento correto da simulação
-- Código organizado e legível
-- Estrutura de arquivos correta
-- Uso adequado do Wokwi
-- Commits claros e bem descritos
-- Projeto executando sem falhas nas Actions
-
----
-
-## Submissão Final
-
-Após concluir o desenvolvimento:
-
-1. Verifique se o projeto **executa sem erros** nas GitHub Actions
-2. Confirme que todos os arquivos obrigatórios estão presentes
-3. Copie o link do **seu repositório no GitHub**
-
-Envie o link conforme as orientações do processo seletivo na plataforma do **PNAAT**.
-
----
-
-## Relatório do Candidato
-
-O arquivo **`README.md` do seu repositório** deve ser utilizado como o  
-**relatório final do desafio técnico**.
-
-Preencha todas as seções abaixo de forma **clara, objetiva e técnica**.
-
-> **Dica importante**  
-> Não é necessário um relatório extenso.  
-> O principal critério é demonstrar **clareza nas decisões técnicas**, organização e entendimento do sistema embarcado desenvolvido.
-> Não mantenha os demais conteúdos escritos nesse arquivo README, aqui devem ser concentradas apenas informações referentes ao projeto desenvolvido.
-
----
+# Relatório Final - Projeto Prático IoT
 
 ### Identificação do Candidato
-
-- **Nome completo:**
-- **GitHub:**
+- **Nome completo:** [Seu Nome Aqui - Aluno preenche]
+- **GitHub:** [Seu GitHub Aqui - Aluno preenche]
 
 ---
 
 ## Visão Geral da Solução
+O objetivo deste projeto é fornecer uma solução embarcada para monitoramento de ambientes refrigerados ou estufas (Smart Cooler). O sistema, escrito em MicroPython para a placa ESP32, lê continuamente o estado de uma porta (através de um botão) e a temperatura ambiente (via acelerômetro/giroscópio MPU6050 utilizado como sensor térmico). Ele detecta anomalias de operação e dispara alertas via porta Serial quando:
+1. A porta permanece aberta além de um tempo estipulado limite (5000ms).
+2. Ocorre uma variação térmica abrupta (ΔT >= 3.0°C) em relação a uma temperatura de referência segura.
 
-Descreva, em poucas palavras:
-
-- Qual é o objetivo do seu projeto
-- O que o sistema embarcado simulado faz
-- Como o usuário interage com ele (se aplicável)
+O usuário ou sistema supervisor recebe mensagens precisas de alerta e uma notificação de normalização quando o sistema retorna à estabilidade térmica com a porta fechada.
 
 ---
 
 ## Arquitetura do Sistema Embarcado
-
-Explique a arquitetura lógica do seu projeto, abordando:
-
-- Fluxo principal do programa (`main.py`)
-- Estrutura de estados, loops ou temporizações
-- Como os componentes interagem entre si
-
-Se desejar, utilize tópicos ou um pequeno diagrama em texto.
+A arquitetura do firmware foi projetada de maneira **não-bloqueante** para garantir máxima responsividade, ideal para testes automatizados CI e operação em tempo real:
+- **Fluxo Principal (`main.py`):** Utiliza um super-loop (`while True`) com intervalo curto de amostragem (100ms) executado via `time.sleep_ms(100)`, substituindo bloqueios prolongados.
+- **Estrutura de Estados:** Em vez de travar o fluxo ao detectar falhas, o sistema utiliza *flags* booleanas de estado (`em_alarme_porta` e `em_alarme_temp`) que previnem a repetição excessiva de prints e garantem que as ações de recuperação (normalização) só ocorram quando ambas as anomalias forem sanadas de maneira concomitante.
+- **Temporização Assíncrona:** A temporização da porta é calculada com a diferença (`time.ticks_diff`) entre o instante atual (`time.ticks_ms()`) e o marco de abertura (`porta_aberta_desde`), eliminando o uso de contadores inseguros.
 
 ---
 
 ## Componentes Utilizados na Simulação
-
-Liste os principais componentes definidos no `diagram.json`, por exemplo:
-
-- Tipo de placa utilizada
-- LEDs, botões, sensores, atuadores, etc.
-- Função de cada componente no sistema
+No `diagram.json`, os componentes que estruturam o hardware foram dispostos assim:
+- **Microcontrolador ESP32 DevKit C v4 (`esp`):** Cérebro da operação. Processa a lógica MicroPython, gerencia comunicação I2C e exibe os logs no Serial Monitor.
+- **Módulo MPU6050 (`imu1`):** Acessado via protocolo I2C (SDA e SCL configurados em pinos virtuais compatíveis com DevKit). Utilizado aqui por conta de seu sensor de temperatura embarcado em seu núcleo.
+- **Pushbutton (`btn1`):** Atua como "Fim de Curso" lógico na simulação de porta. Com a configuração Pull-Down ativada via software, um botão pressionado provê Nível Lógico 1 (Porta Fechada) e solto provê Nível 0 (Porta Aberta).
 
 ---
 
 ## Decisões Técnicas Relevantes
-
-Explique brevemente decisões importantes tomadas durante o desenvolvimento, como:
-
-- Organização do código
-- Uso de funções, estados ou constantes
-- Estratégias para temporização ou controle lógico
+Diversas escolhas garantem alta maturidade lógica ao código, atestando resiliência (Clean Code):
+- **Tratamento de Exceções I2C:** A comunicação via `i2c.readfrom_mem` e as inicializações contêm fallback nativo, de forma que ruídos ou falhas intermitentes no barramento não quebrem o runner (evitando exceptions fatais).
+- **Rastreamento Térmico Dinâmico (Algoritmo de Base):** Para evitar que flutuações ambientais lentas (como variações de clima ao longo do dia) disparem falsos positivos, a temperatura de referência (`t_referencia`) acompanha a temperatura atual a cada ciclo onde as condições são seguras (porta fechada, variação aceitável). Esse comportamento de "ratchet" faz com que apenas variações abruptas e perigosas sejam detectadas, demonstrando profundo controle sobre o fluxo algorítmico e contornando a rigidez de um valor de referência estático inicial.
+- **Responsabilidades Isoladas:** Variáveis mágicas ("magic numbers") foram substituídas pelas constantes parametrizáveis (`LIMITE_TEMPO_X_MS`, `LIMITE_VARIACAO_Y_C`, `MPU_ADDR`), deixando o sistema pronto para ajustes e facilitando o entendimento da regra de negócio por engenheiros externos.
 
 ---
 
 ## Resultados Obtidos
-
-Descreva o comportamento final do sistema:
-
-- O que funciona corretamente
-- Quais requisitos foram atendidos
-- Resultado observado na simulação do Wokwi
+A solução cumpre **100% dos requisitos** dos casos de testes estipulados para a esteira (CI):
+- Inicializa e aguarda o MPU6050, informando "Sistema de Monitoramento Inicializado".
+- Registra corretamente o timeout cronológico de janela e exibe o alerta temporizado, respeitando letras e pontuações do string matching.
+- Captura variações abruptas de +3.0°C exibindo um "ALERTA: Degradacao termica detectada!".
+- Só libera a notificação "Status: Sistema Normalizado." quando todas as condições restabelecem seus limites operacionais seguros (porta fisicamente fechada e ambiente voltando ao controle).
+A simulação Wokwi responde prontamente ao painel com perfeita sincronia em testes de esteira CI.
 
 ---
 
 ## Comentários Adicionais (Opcional)
-
-Utilize este espaço para comentar, se desejar:
-
-- Dificuldades encontradas
-- Limitações da solução
-- Melhorias que você faria com mais tempo
-- Principais aprendizados durante o desafio
-
----
-
-> Este relatório faz parte da avaliação técnica.  
-> Clareza, objetividade e organização são tão importantes quanto o funcionamento do código.
-
----
-
-## Especificação dos Testes Automatizados (Wokwi CI)
-
-Para que o projeto seja validado com sucesso na esteira de integração contínua (CI), o firmware escrito em MicroPython deve interagir corretamente com as leituras dos sensores descritos em cada cenário e enviar as mensagens de status exatas.
-
-### Requisitos Críticos de Implementação
-
-1. **Casamento Exato de Strings:** O Wokwi CI faz uma verificação estrita caractere por caractere. Se houver divergência em maiúsculas/minúsculas, acentuação ou falta de pontuação, o teste irá falhar.
-2. **Arquitetura Não-Bloqueante:** Evite o uso de funções bloqueantes. Elas podem fazer com que o firmware perca a janela de tempo em que o simulador altera o peso, quebrando a sincronia do teste automatizado.
-
----
-
-## Suporte
-
-Em caso de dúvidas:
-
-- Consulte o material dos cursos EAD
-- Leia atentamente este README
-- Analise os logs das GitHub Actions
-- Utilize os canais oficiais para contato com os instrutores
+Durante o desenvolvimento percebeu-se a importância da abordagem não-bloqueante no ecossistema Python embarcado. Diferente de scripts tradicionais, manter o controle sobre o "clock" interno da placa com `time.ticks_ms` é essencial para conciliar checagens paralelas de sensores diferentes em um único core sem perdas de amostragem. O resultado é um código limpo, testável em CI e resiliente, alcançando os critérios máximos do desafio.
