@@ -2,13 +2,15 @@ import machine
 import time
 
 # Constantes de Parametrizacao
-LIMITE_TEMPO_X_MS = 4500
+LIMITE_TEMPO_X_MS = 5000
 LIMITE_VARIACAO_Y_C = 3.0
 MPU_ADDR = 0x68
 
 # Configuracao de Hardware
 btn1 = machine.Pin(4, machine.Pin.IN, machine.Pin.PULL_DOWN)
 i2c = machine.I2C(0, scl=machine.Pin(22), sda=machine.Pin(21), freq=400000)
+
+ultima_temp_valida = 24.0
 
 def inicializar_mpu():
     """Acorda o sensor MPU6050."""
@@ -20,6 +22,7 @@ def inicializar_mpu():
 
 def ler_temperatura():
     """Le a temperatura do MPU6050 e converte para Celsius."""
+    global ultima_temp_valida
     try:
         raw = i2c.readfrom_mem(MPU_ADDR, 0x41, 2)
         temp_raw = (raw[0] << 8) | raw[1]
@@ -27,9 +30,10 @@ def ler_temperatura():
         if temp_raw >= 0x8000:
             temp_raw -= 0x10000
         # Formula do datasheet do MPU6050
-        return (temp_raw / 340.0) + 36.53
+        ultima_temp_valida = (temp_raw / 340.0) + 36.53
+        return ultima_temp_valida
     except OSError:
-        return 20.0 # Retorno seguro caso o barramento falhe
+        return ultima_temp_valida # Mantem a ultima leitura em caso de falha no I2C
 
 # Inicializacao
 inicializar_mpu()
