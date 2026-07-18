@@ -2,7 +2,7 @@ import machine
 import time
 
 # Constantes de Parametrizacao
-LIMITE_TEMPO_X_MS = 3000
+LIMITE_TEMPO_X_MS = 4000
 LIMITE_VARIACAO_Y_C = 3.0
 MPU_ADDR = 0x68
 
