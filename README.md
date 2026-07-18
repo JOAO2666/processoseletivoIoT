@@ -1,8 +1,8 @@
 # Relatório Final - Projeto Prático IoT
 
 ### Identificação do Candidato
-- **Nome completo:** [Seu Nome Aqui - Aluno preenche]
-- **GitHub:** [Seu GitHub Aqui - Aluno preenche]
+- **Nome completo:** João Emanuel Almeida Ramos
+- **GitHub:** github.com/JOAO2666/processoseletivoIoT
 
 ---
 
