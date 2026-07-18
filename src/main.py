@@ -8,13 +8,22 @@ MPU_ADDR = 0x68
 
 # Configuracao de Hardware
 btn1 = machine.Pin(4, machine.Pin.IN, machine.Pin.PULL_DOWN)
-# Habilitar PULL_UP interno é crucial no Wokwi se não houver resistores externos no diagrama
-i2c = machine.I2C(0, scl=machine.Pin(22, machine.Pin.PULL_UP), sda=machine.Pin(21, machine.Pin.PULL_UP), freq=400000)
+# Habilitar PULL_UP interno e usar SoftI2C (mais flexível com pinagem no Wokwi)
+i2c = machine.SoftI2C(scl=machine.Pin(22, machine.Pin.PULL_UP), sda=machine.Pin(21, machine.Pin.PULL_UP), freq=100000)
+
+def descobrir_mpu_addr():
+    devices = i2c.scan()
+    for d in devices:
+        if d in (0x68, 0x69):
+            return d
+    return 0x68 # fallback default
+
+MPU_ADDR_REAL = descobrir_mpu_addr()
 
 def ler_temperatura():
     """Le a temperatura do MPU6050 e converte para Celsius."""
     try:
-        raw = i2c.readfrom_mem(MPU_ADDR, 0x41, 2)
+        raw = i2c.readfrom_mem(MPU_ADDR_REAL, 0x41, 2)
         temp_raw = (raw[0] << 8) | raw[1]
         if temp_raw >= 0x8000:
             temp_raw -= 0x10000
@@ -26,7 +35,7 @@ def ler_temperatura():
 def acordar_mpu():
     """Acorda o sensor MPU6050 retirando do modo sleep (0x6B = 0)."""
     try:
-        i2c.writeto_mem(MPU_ADDR, 0x6B, b'\x00')
+        i2c.writeto_mem(MPU_ADDR_REAL, 0x6B, b'\x00')
     except Exception as e:
         print("Aviso: Falha ao acordar MPU:", e)
 
