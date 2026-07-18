@@ -37,7 +37,7 @@ def ler_temperatura():
 
 # Inicializacao
 inicializar_mpu()
-time.sleep(1.5) # Pausa maior para garantir que o CI conecte na Serial
+time.sleep(0.1) # Breve pausa para estabilizacao
 print("Sistema de Monitoramento Inicializado")
 
 # Variaveis de Estado
