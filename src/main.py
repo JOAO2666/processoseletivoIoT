@@ -8,8 +8,8 @@ MPU_ADDR = 0x68
 
 # Configuracao de Hardware
 btn1 = machine.Pin(4, machine.Pin.IN, machine.Pin.PULL_DOWN)
-# Usar SoftI2C aumenta significativamente a compatibilidade no Wokwi para não travar o barramento
-i2c = machine.SoftI2C(scl=machine.Pin(22), sda=machine.Pin(21), freq=100000)
+# Habilitar PULL_UP interno é crucial no Wokwi se não houver resistores externos no diagrama
+i2c = machine.I2C(0, scl=machine.Pin(22, machine.Pin.PULL_UP), sda=machine.Pin(21, machine.Pin.PULL_UP), freq=400000)
 
 def ler_temperatura():
     """Le a temperatura do MPU6050 e converte para Celsius."""
