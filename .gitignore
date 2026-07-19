@@ -1,1 +1,4 @@
 .env
+job.log
+runs.json
+wokwi-cli.exe
