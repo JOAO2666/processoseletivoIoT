@@ -48,8 +48,10 @@ class SmartCooler:
 
     def run(self):
         print("Sistema de Monitoramento Inicializado")
+        time.sleep_ms(200)
+        disp = self.sensor.i2c.scan()
+        print("I2C:" + str(disp))
         
-        # Loop Principal
         while True:
             t_atual = self.sensor.ler_temperatura()
 
@@ -109,6 +111,6 @@ class SmartCooler:
 
 if __name__ == '__main__':
     # Hardware I2C com pull-up interno (maior compatibilidade com MPU6050 no Wokwi)
-    i2c = machine.I2C(0, scl=machine.Pin(22, machine.Pin.PULL_UP), sda=machine.Pin(21, machine.Pin.PULL_UP), freq=100000)
+    i2c = machine.I2C(0, scl=machine.Pin(22), sda=machine.Pin(21), freq=400000)
     cooler = SmartCooler(btn_pin=4, i2c_bus=i2c)
     cooler.run()
