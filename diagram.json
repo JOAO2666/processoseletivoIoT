@@ -5,6 +5,8 @@
   "parts": [
     { "type": "board-esp32-devkit-c-v4", "id": "esp", "top": 0, "left": 0, "attrs": {} },
     { "type": "board-mpu6050", "id": "imu1", "top": -100, "left": 150, "attrs": {} },
+    { "type": "wokwi-resistor", "id": "r1", "top": -150, "left": 200, "rotate": 90, "attrs": { "resistance": "4700" } },
+    { "type": "wokwi-resistor", "id": "r2", "top": -150, "left": 220, "rotate": 90, "attrs": { "resistance": "4700" } },
     { "type": "wokwi-pushbutton", "id": "btn1", "top": 100, "left": 150, "attrs": {"color": "green"} }
   ],
   "connections": [
@@ -14,6 +16,10 @@
     [ "esp:GND.2", "imu1:GND", "black", [] ],
     [ "esp:21", "imu1:SDA", "green", [] ],
     [ "esp:22", "imu1:SCL", "blue", [] ],
+    [ "esp:3V3", "r1:1", "red", [] ],
+    [ "r1:2", "imu1:SDA", "green", [] ],
+    [ "esp:3V3", "r2:1", "red", [] ],
+    [ "r2:2", "imu1:SCL", "blue", [] ],
     [ "esp:3V3", "btn1:1.l", "red", [] ],
     [ "esp:4", "btn1:2.l", "green", [] ]
   ]

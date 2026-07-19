@@ -6,6 +6,7 @@ class MPU6050:
         self.i2c = i2c_bus
         self.addr = addr
         self._acordar()
+        time.sleep_ms(50)
 
     def _acordar(self):
         """Acorda o sensor MPU6050 retirando do modo sleep (0x6B = 0)."""
@@ -108,7 +109,7 @@ class SmartCooler:
             time.sleep_ms(50)
 
 if __name__ == '__main__':
-    # Usar SoftI2C com PULL_UP (Obrigatório pois o circuito do Wokwi não possui resistores de pull-up externos)
-    i2c = machine.SoftI2C(scl=machine.Pin(22, machine.Pin.PULL_UP), sda=machine.Pin(21, machine.Pin.PULL_UP))
+    # Usar SoftI2C com frequência reduzida para maior confiabilidade no Wokwi
+    i2c = machine.SoftI2C(scl=machine.Pin(22, machine.Pin.PULL_UP), sda=machine.Pin(21, machine.Pin.PULL_UP), freq=100000)
     cooler = SmartCooler(btn_pin=4, i2c_bus=i2c)
     cooler.run()
