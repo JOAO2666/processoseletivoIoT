@@ -45,17 +45,6 @@ porta_estava_aberta = False
 
 # Loop Principal
 while True:
-    t_atual = ler_temperatura()
-    
-    # Tolerância a falhas do sensor: pula a iteração se a leitura falhar
-    if t_atual is None:
-        time.sleep_ms(50)
-        continue
-        
-    # Inicializa a referência apenas na primeira leitura bem sucedida
-    if t_referencia is None:
-        t_referencia = t_atual
-
     porta_aberta = (btn1.value() == 0)
 
     # 1. Logica de Tempo de Porta Aberta
@@ -72,27 +61,34 @@ while True:
         porta_estava_aberta = False
         porta_aberta_desde = 0
 
+    t_atual = ler_temperatura()
+    
+    # Inicializa a referência apenas na primeira leitura bem sucedida
+    if t_atual is not None and t_referencia is None:
+        t_referencia = t_atual
+
     # 2. Logica de Elevacao Termica (Gatilho)
     # Aciona o alerta apenas se a variação para CIMA ultrapassar o limite.
-    if (t_atual - t_referencia) >= LIMITE_VARIACAO_Y_C and not em_alarme_temp:
+    if t_atual is not None and (t_atual - t_referencia) >= LIMITE_VARIACAO_Y_C and not em_alarme_temp:
         em_alarme_temp = True
         print("ALERTA: Degradacao termica detectada!")
 
     # 3. Rastreamento Dinamico da Temperatura (Gatilho Base)
     # Se a temperatura cair de forma natural, adotamos ela como nova referência base.
-    if not em_alarme_temp and not em_alarme_porta:
+    if t_atual is not None and not em_alarme_temp and not em_alarme_porta:
         if t_atual < t_referencia:
             t_referencia = t_atual
 
     # 4. Normalizacao Global
     # Se o sistema estava em alarme, ele só normaliza quando a porta é fechada E a temperatura volta a ficar próxima à referência
     if em_alarme_porta or em_alarme_temp:
-        if not porta_aberta and abs(t_atual - t_referencia) < LIMITE_VARIACAO_Y_C:
+        if not porta_aberta and (not em_alarme_temp or (t_atual is not None and abs(t_atual - t_referencia) < LIMITE_VARIACAO_Y_C)):
             em_alarme_porta = False
             em_alarme_temp = False
             print("Status: Sistema Normalizado.")
             # Ao normalizar, atualiza a referência para a temperatura atual, garantindo estabilidade
-            t_referencia = t_atual
+            if t_atual is not None:
+                t_referencia = t_atual
 
     # Intervalo do super-loop
     time.sleep_ms(50)
