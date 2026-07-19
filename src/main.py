@@ -108,7 +108,7 @@ class SmartCooler:
             time.sleep_ms(50)
 
 if __name__ == '__main__':
-    # Usar Hardware I2C (mais estável no Wokwi)
-    i2c = machine.I2C(0, scl=machine.Pin(22), sda=machine.Pin(21))
+    # Usar SoftI2C com PULL_UP (Obrigatório pois o circuito do Wokwi não possui resistores de pull-up externos)
+    i2c = machine.SoftI2C(scl=machine.Pin(22, machine.Pin.PULL_UP), sda=machine.Pin(21, machine.Pin.PULL_UP))
     cooler = SmartCooler(btn_pin=4, i2c_bus=i2c)
     cooler.run()
