@@ -108,7 +108,7 @@ class SmartCooler:
             time.sleep_ms(50)
 
 if __name__ == '__main__':
-    # I2C no estilo SoftI2C compatível com Wokwi (sem ID do bus)
-    i2c = machine.I2C(sda=machine.Pin(21), scl=machine.Pin(22), freq=100000)
+    # SoftI2C garante compatibilidade plena com o simulador Wokwi
+    i2c = machine.SoftI2C(sda=machine.Pin(21), scl=machine.Pin(22), freq=100000)
     cooler = SmartCooler(btn_pin=4, i2c_bus=i2c)
     cooler.run()
