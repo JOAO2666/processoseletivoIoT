@@ -17,7 +17,7 @@ O usuário ou sistema supervisor recebe mensagens precisas de alerta e uma notif
 
 ## Arquitetura do Sistema Embarcado
 A arquitetura do firmware foi projetada de maneira **não-bloqueante** para garantir máxima responsividade, ideal para testes automatizados CI e operação em tempo real:
-- **Fluxo Principal (`main.py`):** Utiliza um super-loop (`while True`) com intervalo curto de amostragem (100ms) executado via `time.sleep_ms(100)`, substituindo bloqueios prolongados.
+- **Fluxo Principal (`main.py`):** Utiliza um super-loop (`while True`) com intervalo curto de amostragem (50ms) executado via `time.sleep_ms(50)`, substituindo bloqueios prolongados.
 - **Estrutura de Estados:** Em vez de travar o fluxo ao detectar falhas, o sistema utiliza *flags* booleanas de estado (`em_alarme_porta` e `em_alarme_temp`) que previnem a repetição excessiva de prints e garantem que as ações de recuperação (normalização) só ocorram quando ambas as anomalias forem sanadas de maneira concomitante.
 - **Temporização Assíncrona:** A temporização da porta é calculada com a diferença (`time.ticks_diff`) entre o instante atual (`time.ticks_ms()`) e o marco de abertura (`porta_aberta_desde`), eliminando o uso de contadores inseguros.
 

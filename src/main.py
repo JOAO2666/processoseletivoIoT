@@ -49,8 +49,6 @@ class SmartCooler:
     def run(self):
         print("Sistema de Monitoramento Inicializado")
         time.sleep_ms(200)
-        disp = self.sensor.i2c.scan()
-        print("I2C:" + str(disp))
         
         while True:
             t_atual = self.sensor.ler_temperatura()
