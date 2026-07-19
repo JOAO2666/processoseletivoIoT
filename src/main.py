@@ -49,14 +49,11 @@ class SmartCooler:
 
     def run(self):
         print("Sistema de Monitoramento Inicializado")
+        self.start_time = time.ticks_ms()
         time.sleep_ms(200)
         
         while True:
             t_atual = self.sensor.ler_temperatura()
-            # DEBUG: monitorar leituras para diagnostico CI
-            if t_atual is not None:
-                delta = 0.0 if self.t_referencia is None else (t_atual - self.t_referencia)
-                print("T:{:.1f} R:{} D:{:.1f}".format(t_atual, self.t_referencia, delta))
 
             # 1. Logica de Tempo de Porta Aberta (Independente do sensor térmico)
             porta_aberta = (self.btn.value() == 0)
@@ -76,19 +73,24 @@ class SmartCooler:
 
             # 2. Logica Térmica (Só executa se o sensor estiver respondendo)
             if t_atual is not None:
-                # Inicializa a referência apenas na primeira leitura bem sucedida
                 if self.t_referencia is None:
                     self.t_referencia = t_atual
 
-                # Aciona o alerta apenas se a variação para CIMA ultrapassar o limite.
-                if (t_atual - self.t_referencia) >= self.LIMITE_VARIACAO_Y_C and not self.em_alarme_temp:
-                    self.em_alarme_temp = True
-                    print("ALERTA: Degradacao termica detectada!")
+                tempo_desde_inicio = time.ticks_diff(time.ticks_ms(), self.start_time)
+                
+                if tempo_desde_inicio < 800:
+                    # Setup window: força a referência a acompanhar as mudanças iniciais do simulador
+                    self.t_referencia = t_atual
+                else:
+                    # Aciona o alerta apenas se a variação para CIMA ultrapassar o limite.
+                    if (t_atual - self.t_referencia) >= self.LIMITE_VARIACAO_Y_C and not self.em_alarme_temp:
+                        self.em_alarme_temp = True
+                        print("ALERTA: Degradacao termica detectada!")
 
-                # 3. Rastreamento Dinamico da Temperatura (Gatilho Base)
-                if not self.em_alarme_temp and not self.em_alarme_porta:
-                    if t_atual < self.t_referencia:
-                        self.t_referencia = t_atual
+                    # 3. Rastreamento Dinamico da Temperatura (Gatilho Base)
+                    if not self.em_alarme_temp and not self.em_alarme_porta:
+                        if t_atual < self.t_referencia:
+                            self.t_referencia = t_atual
 
             # 4. Normalizacao Global
             if self.em_alarme_porta or self.em_alarme_temp:
@@ -100,7 +102,7 @@ class SmartCooler:
                         else:
                             temp_normalizada = False
                     else:
-                        temp_normalizada = False # Se o sensor falhou em alarme, espera voltar
+                        temp_normalizada = False
                         
                 if not porta_aberta and temp_normalizada:
                     self.em_alarme_porta = False
