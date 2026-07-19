@@ -14,15 +14,20 @@ MPU_ADDR_REAL = 0x68
 
 def ler_temperatura():
     """Le a temperatura do MPU6050 e converte para Celsius."""
-    try:
-        raw = i2c.readfrom_mem(MPU_ADDR_REAL, 0x41, 2)
-        temp_raw = (raw[0] << 8) | raw[1]
-        if temp_raw >= 0x8000:
-            temp_raw -= 0x10000
-        return (temp_raw / 340.0) + 36.53
-    except Exception:
-        # Retorna None caso haja falha de leitura (fallback elegante sem hardcodes)
-        return None
+    for tentativa in range(2):
+        try:
+            raw = i2c.readfrom_mem(MPU_ADDR_REAL, 0x41, 2)
+            temp_raw = (raw[0] << 8) | raw[1]
+            if temp_raw >= 0x8000:
+                temp_raw -= 0x10000
+            return (temp_raw / 340.0) + 36.53
+        except Exception:
+            if tentativa == 0:
+                acordar_mpu()
+                time.sleep_ms(20)
+
+    # Retorna None caso haja falha de leitura (fallback elegante sem hardcodes)
+    return None
 
 def acordar_mpu():
     """Acorda o sensor MPU6050 retirando do modo sleep (0x6B = 0)."""
