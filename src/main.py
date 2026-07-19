@@ -8,8 +8,8 @@ MPU_ADDR = 0x68
 
 # Configuracao de Hardware
 btn1 = machine.Pin(4, machine.Pin.IN, machine.Pin.PULL_DOWN)
-# Habilitar PULL_UP interno e usar SoftI2C
-i2c = machine.SoftI2C(scl=machine.Pin(22, machine.Pin.PULL_UP), sda=machine.Pin(21, machine.Pin.PULL_UP))
+# Usar Hardware I2C (mais estável no Wokwi)
+i2c = machine.I2C(0, scl=machine.Pin(22), sda=machine.Pin(21))
 MPU_ADDR_REAL = 0x68
 
 def ler_temperatura():
@@ -46,19 +46,10 @@ porta_estava_aberta = False
 # Loop Principal
 while True:
     t_atual = ler_temperatura()
-    
-    # Tolerância a falhas do sensor: pula a iteração se a leitura falhar
-    if t_atual is None:
-        time.sleep_ms(50)
-        continue
-        
-    # Inicializa a referência apenas na primeira leitura bem sucedida
-    if t_referencia is None:
-        t_referencia = t_atual
 
+    # 1. Logica de Tempo de Porta Aberta (Independente do sensor térmico)
     porta_aberta = (btn1.value() == 0)
-
-    # 1. Logica de Tempo de Porta Aberta
+    
     if porta_aberta:
         if not porta_estava_aberta:
             porta_aberta_desde = time.ticks_ms()
@@ -72,27 +63,43 @@ while True:
         porta_estava_aberta = False
         porta_aberta_desde = 0
 
-    # 2. Logica de Elevacao Termica (Gatilho)
-    # Aciona o alerta apenas se a variação para CIMA ultrapassar o limite.
-    if (t_atual - t_referencia) >= LIMITE_VARIACAO_Y_C and not em_alarme_temp:
-        em_alarme_temp = True
-        print("ALERTA: Degradacao termica detectada!")
-
-    # 3. Rastreamento Dinamico da Temperatura (Gatilho Base)
-    # Se a temperatura cair de forma natural, adotamos ela como nova referência base.
-    if not em_alarme_temp and not em_alarme_porta:
-        if t_atual < t_referencia:
+    # 2. Logica Térmica (Só executa se o sensor estiver respondendo)
+    if t_atual is not None:
+        # Inicializa a referência apenas na primeira leitura bem sucedida
+        if t_referencia is None:
             t_referencia = t_atual
+
+        # Aciona o alerta apenas se a variação para CIMA ultrapassar o limite.
+        if (t_atual - t_referencia) >= LIMITE_VARIACAO_Y_C and not em_alarme_temp:
+            em_alarme_temp = True
+            print("ALERTA: Degradacao termica detectada!")
+
+        # 3. Rastreamento Dinamico da Temperatura (Gatilho Base)
+        # Se a temperatura cair de forma natural, adotamos ela como nova referência base.
+        if not em_alarme_temp and not em_alarme_porta:
+            if t_atual < t_referencia:
+                t_referencia = t_atual
 
     # 4. Normalizacao Global
     # Se o sistema estava em alarme, ele só normaliza quando a porta é fechada E a temperatura volta a ficar próxima à referência
     if em_alarme_porta or em_alarme_temp:
-        if not porta_aberta and abs(t_atual - t_referencia) < LIMITE_VARIACAO_Y_C:
+        # A temperatura só impede a normalização se estiver em alarme
+        temp_normalizada = True
+        if em_alarme_temp:
+            if t_atual is not None and t_referencia is not None:
+                if abs(t_atual - t_referencia) < LIMITE_VARIACAO_Y_C:
+                    temp_normalizada = True
+                else:
+                    temp_normalizada = False
+            else:
+                temp_normalizada = False # Se o sensor falhou em alarme, espera voltar
+                
+        if not porta_aberta and temp_normalizada:
             em_alarme_porta = False
             em_alarme_temp = False
             print("Status: Sistema Normalizado.")
-            # Ao normalizar, atualiza a referência para a temperatura atual, garantindo estabilidade
-            t_referencia = t_atual
+            if t_atual is not None:
+                t_referencia = t_atual
 
     # Intervalo do super-loop
     time.sleep_ms(50)
