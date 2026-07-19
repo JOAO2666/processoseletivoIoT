@@ -109,7 +109,7 @@ class SmartCooler:
             time.sleep_ms(50)
 
 if __name__ == '__main__':
-    # Usar SoftI2C com frequência reduzida para maior confiabilidade no Wokwi
-    i2c = machine.SoftI2C(scl=machine.Pin(22, machine.Pin.PULL_UP), sda=machine.Pin(21, machine.Pin.PULL_UP), freq=100000)
+    # Usar Hardware I2C com pull-ups externos (4.7kΩ) para maior confiabilidade no Wokwi
+    i2c = machine.I2C(0, scl=machine.Pin(22), sda=machine.Pin(21), freq=100000)
     cooler = SmartCooler(btn_pin=4, i2c_bus=i2c)
     cooler.run()
