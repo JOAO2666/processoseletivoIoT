@@ -12,8 +12,8 @@ class MPU6050:
         """Acorda o sensor MPU6050 retirando do modo sleep (0x6B = 0)."""
         try:
             self.i2c.writeto_mem(self.addr, 0x6B, b'\x00')
-        except Exception:
-            pass
+        except Exception as e:
+            print("I2C Error _acordar:", e)
             
     def ler_temperatura(self):
         """Le a temperatura do MPU6050 e converte para Celsius."""
@@ -24,7 +24,8 @@ class MPU6050:
                 if temp_raw >= 0x8000:
                     temp_raw -= 0x10000
                 return (temp_raw / 340.0) + 36.53
-            except Exception:
+            except Exception as e:
+                print("I2C Error:", e)
                 if tentativa == 0:
                     self._acordar()
                     time.sleep_ms(20)
