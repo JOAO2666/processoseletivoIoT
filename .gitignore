@@ -2,3 +2,8 @@
 job.log
 runs.json
 wokwi-cli.exe
+
+# Python bytecode cache
+__pycache__/
+*.pyc
+*.pyo
