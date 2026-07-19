@@ -21,7 +21,7 @@ jobs:
           #Padrão de segurança
           FOLDER="WEIGHT"
         
-          # Corrigido: adicionados os espaços e corrigido 'WEIGHT.txt'
+          # Detecta qual arquivo de cenário existe para configurar a pasta do Wokwi
           if [ -f "scenarios/WEIGHT.txt" ]; then
             FOLDER="weight"
           elif [ -f "scenarios/TEMPERATURE.txt" ]; then
