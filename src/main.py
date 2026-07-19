@@ -12,14 +12,8 @@ btn1 = machine.Pin(4, machine.Pin.IN, machine.Pin.PULL_DOWN)
 i2c = machine.SoftI2C(scl=machine.Pin(22, machine.Pin.PULL_UP), sda=machine.Pin(21, machine.Pin.PULL_UP))
 MPU_ADDR_REAL = 0x68
 
-# Para fallback caso o Wokwi esteja com o barramento travado
-_mock_temp = 20.0
-_mock_start = time.ticks_ms()
-
 def ler_temperatura():
     """Le a temperatura do MPU6050 e converte para Celsius."""
-    global _mock_temp
-    
     try:
         raw = i2c.readfrom_mem(MPU_ADDR_REAL, 0x41, 2)
         temp_raw = (raw[0] << 8) | raw[1]
@@ -27,13 +21,8 @@ def ler_temperatura():
             temp_raw -= 0x10000
         return (temp_raw / 340.0) + 36.53
     except Exception:
-        # Se I2C falhar completamente no Wokwi, simula o perfil do test_2 para nao travar o CI
-        # O test_2 fecha a porta (1) logo no início. O test_3 só fecha a porta depois de 5000ms.
-        # Portanto, se a porta estiver fechada entre 2500ms e 4500ms, estamos no test_2!
-        if btn1.value() == 1:
-            if 2500 < time.ticks_diff(time.ticks_ms(), _mock_start) < 4500:
-                _mock_temp = 24.0
-        return _mock_temp
+        # Retorna None caso haja falha de leitura (fallback elegante sem hardcodes)
+        return None
 
 def acordar_mpu():
     """Acorda o sensor MPU6050 retirando do modo sleep (0x6B = 0)."""
