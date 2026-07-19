@@ -15,16 +15,11 @@ class MPU6050:
         except Exception:
             pass
             
-    def _ler_registro(self, reg, nbytes):
-        """Le nbytes de um registrador via I2C combinado."""
-        self.i2c.writeto(self.addr, bytearray([reg]))
-        return self.i2c.readfrom(self.addr, nbytes)
-
     def ler_temperatura(self):
         """Le a temperatura do MPU6050 e converte para Celsius."""
         for tentativa in range(2):
             try:
-                raw = self._ler_registro(0x41, 2)
+                raw = self.i2c.readfrom_mem(self.addr, 0x41, 2)
                 temp_raw = (raw[0] << 8) | raw[1]
                 if temp_raw >= 0x8000:
                     temp_raw -= 0x10000
@@ -113,7 +108,7 @@ class SmartCooler:
             time.sleep_ms(50)
 
 if __name__ == '__main__':
-    # SoftI2C com pull-up interno e frequencia reduzida para maior compatibilidade com MPU6050 no Wokwi
-    i2c = machine.SoftI2C(scl=machine.Pin(22, machine.Pin.PULL_UP), sda=machine.Pin(21, machine.Pin.PULL_UP), freq=100000)
+    # Hardware I2C com pull-up interno (maior compatibilidade com MPU6050 no Wokwi)
+    i2c = machine.I2C(0, scl=machine.Pin(22, machine.Pin.PULL_UP), sda=machine.Pin(21, machine.Pin.PULL_UP), freq=100000)
     cooler = SmartCooler(btn_pin=4, i2c_bus=i2c)
     cooler.run()
