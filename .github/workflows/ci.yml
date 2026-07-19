@@ -77,9 +77,28 @@ jobs:
         name: esp32-firmware-binary
         path: .
 
+    - name: Install Wokwi CLI
+      run: |
+        wget -q -O /usr/local/bin/wokwi-cli https://github.com/wokwi/wokwi-cli/releases/latest/download/wokwi-cli-linuxstatic-x64
+        chmod +x /usr/local/bin/wokwi-cli
+
     - name: Test with Wokwi
-      uses: wokwi/wokwi-ci-action@v1
-      with:
-        token: ${{ secrets.WOKWI_CLI_TOKEN }}
-        scenario: 'scenarios/${{ needs.detect_project.outputs.project_folder }}/${{ matrix.test_type }}.yaml'
-        timeout: 30000
+      env:
+        WOKWI_CLI_TOKEN: ${{ secrets.WOKWI_CLI_TOKEN }}
+      run: |
+        set +e
+        OUTPUT=$(wokwi-cli --timeout "30000" \
+          --diagram-file "diagram.json" \
+          --scenario "scenarios/${{ needs.detect_project.outputs.project_folder }}/${{ matrix.test_type }}.yaml" "${GITHUB_WORKSPACE}/" 2>&1)
+        STATUS=$?
+        set -e
+
+        echo "$OUTPUT"
+
+        if [ $STATUS -ne 0 ]; then
+          if echo "$OUTPUT" | grep -q "Free plan monthly CI minute quota"; then
+            echo "::warning::Wokwi CI quota exhausted. Skipping this Wokwi scenario run."
+            exit 0
+          fi
+          exit $STATUS
+        fi
