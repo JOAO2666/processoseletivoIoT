@@ -52,6 +52,10 @@ class SmartCooler:
         
         while True:
             t_atual = self.sensor.ler_temperatura()
+            # DEBUG: monitorar leituras para diagnostico CI
+            if t_atual is not None:
+                delta = 0.0 if self.t_referencia is None else (t_atual - self.t_referencia)
+                print("T:{:.1f} R:{} D:{:.1f}".format(t_atual, self.t_referencia, delta))
 
             # 1. Logica de Tempo de Porta Aberta (Independente do sensor térmico)
             porta_aberta = (self.btn.value() == 0)
