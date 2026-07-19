@@ -110,7 +110,7 @@ class SmartCooler:
             time.sleep_ms(50)
 
 if __name__ == '__main__':
-    # Hardware I2C com pull-up interno (maior compatibilidade com MPU6050 no Wokwi)
-    i2c = machine.I2C(0, scl=machine.Pin(22), sda=machine.Pin(21), freq=400000)
+    # I2C no estilo SoftI2C compatível com Wokwi (sem ID do bus)
+    i2c = machine.I2C(sda=machine.Pin(21), scl=machine.Pin(22), freq=100000)
     cooler = SmartCooler(btn_pin=4, i2c_bus=i2c)
     cooler.run()
