@@ -17,7 +17,11 @@ O usuário ou sistema supervisor recebe mensagens precisas de alerta e uma notif
 
 ## Arquitetura do Sistema Embarcado
 A arquitetura do firmware foi projetada de maneira **não-bloqueante** para garantir máxima responsividade, ideal para testes automatizados CI e operação em tempo real:
-- **Fluxo Principal (`main.py`):** Utiliza um super-loop (`while True`) com intervalo curto de amostragem (50ms) executado via `time.sleep_ms(50)`, substituindo bloqueios prolongados.
+- **Fluxo Principal (`run`):** Utiliza um super-loop (`while True`) com intervalo curto de amostragem (`INTERVALO_LOOP_MS = 50ms`) executado via `time.sleep_ms`, substituindo bloqueios prolongados. O laço principal é enxuto: lê o sensor e delega cada verificação a um método especializado.
+- **Responsabilidades Isoladas:** A lógica foi decomposta em três métodos privados independentes, cada um com responsabilidade única:
+  - `_verificar_porta_aberta`: detecta abertura e dispara o alarme temporizado.
+  - `_verificar_temperatura`: calcula o gradiente térmico e aciona o alarme de degradação.
+  - `_verificar_normalizacao`: avalia se todas as condições seguras foram restauradas.
 - **Estrutura de Estados:** Em vez de travar o fluxo ao detectar falhas, o sistema utiliza *flags* booleanas de estado (`em_alarme_porta` e `em_alarme_temp`) que previnem a repetição excessiva de prints e garantem que as ações de recuperação (normalização) só ocorram quando ambas as anomalias forem sanadas de maneira concomitante.
 - **Temporização Assíncrona:** A temporização da porta é calculada com a diferença (`time.ticks_diff`) entre o instante atual (`time.ticks_ms()`) e o marco de abertura (`porta_aberta_desde`), eliminando o uso de contadores inseguros.
 
@@ -35,7 +39,7 @@ No `diagram.json`, os componentes que estruturam o hardware foram dispostos assi
 Diversas escolhas garantem alta maturidade lógica ao código, atestando resiliência (Clean Code):
 - **Tratamento de Exceções I2C:** A comunicação via `i2c.readfrom_mem` e as inicializações contêm fallback nativo, de forma que ruídos ou falhas intermitentes no barramento não quebrem o runner (evitando exceptions fatais).
 - **Rastreamento Térmico Dinâmico (Algoritmo de Base):** Para evitar que flutuações ambientais lentas (como variações de clima ao longo do dia) disparem falsos positivos, a temperatura de referência (`t_referencia`) acompanha a temperatura atual a cada ciclo onde as condições são seguras (porta fechada, variação aceitável). Esse comportamento de "ratchet" faz com que apenas variações abruptas e perigosas sejam detectadas, demonstrando profundo controle sobre o fluxo algorítmico e contornando a rigidez de um valor de referência estático inicial.
-- **Responsabilidades Isoladas:** Variáveis mágicas ("magic numbers") foram substituídas pelas constantes parametrizáveis (`LIMITE_TEMPO_X_MS`, `LIMITE_VARIACAO_Y_C`, `MPU_ADDR`), deixando o sistema pronto para ajustes e facilitando o entendimento da regra de negócio por engenheiros externos.
+- **Responsabilidades Isoladas:** Todos os "números mágicos" foram substituídos por constantes declaradas (`LIMITE_TEMPO_X_MS`, `LIMITE_VARIACAO_Y_C`, `JANELA_SETUP_MS`, `INTERVALO_LOOP_MS`), incluindo os registradores do MPU6050 (`REG_TEMP`, `REG_PWR_MGMT_1`) e fatores de conversão. O método `run()` foi mantido enxuto delegando cada regra de negócio a um método privado especializado, facilitando ajustes e o entendimento da lógica por engenheiros externos.
 
 ---
 
