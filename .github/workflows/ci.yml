@@ -22,11 +22,11 @@ jobs:
           FOLDER="WEIGHT"
         
           # Detecta qual arquivo de cenário existe para configurar a pasta do Wokwi
-          if [ -f "scenarios/WEIGHT.txt" ]; then
+          if [ -f "scenarios/WEIGHT.md" ]; then
             FOLDER="weight"
-          elif [ -f "scenarios/TEMPERATURE.txt" ]; then
+          elif [ -f "scenarios/TEMPERATURE.md" ]; then
             FOLDER="temperature"
-          elif [ -f "scenarios/LIGHT.txt" ]; then
+          elif [ -f "scenarios/LIGHT.md" ]; then
            FOLDER="light"
           fi
           
