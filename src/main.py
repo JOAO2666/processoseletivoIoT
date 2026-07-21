@@ -15,8 +15,14 @@ class MPU6050:
     def __init__(self, i2c_bus, addr=0x68):
         self.i2c = i2c_bus
         self.addr = addr
-        self._acordar()
-        time.sleep_ms(50)
+        for _ in range(5):
+            self._acordar()
+            time.sleep_ms(100)
+            try:
+                self.i2c.readfrom_mem(self.addr, self.REG_TEMP, 2)
+                break
+            except Exception:
+                continue
 
     def _acordar(self):
         """Acorda o sensor retirando do modo sleep (registrador 0x6B = 0)."""
